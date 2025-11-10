@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Raspberry Pi Camera</title>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="./favicon.png">
+    <!-- <link href="./templates/style.css" rel="stylesheet" /> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+    <div class="container">
+        <div class="retourvid-container">
+            <img class="retourvid" src="/video_feed" onclick="ouvrirretourvidpleinecran(this.src)">
+            <button class="retourvid-fullscreen-button" onclick="ouvrirretourvidpleinecran(this.parentelement.queryselector('img').src)">⤢</button>
+        </div>
+
+        <!-- popup pour l'image en plein écran -->
+        <div id="retourvidfullscreenpopup" class="retourvid-fullscreen-popup">
+            <div class="retourvid-fullscreen-content">
+                <button id="retourvidfullscreenclose" class="retourvid-fullscreen-close" onclick="fermerretourvidpleinecran()">×</button>
+                <img id="retourvidfullscreenimage" src="" alt="plein écran">
+            </div>
+        </div>
+
+        <div class="file-section">
+            <a href="{{ url_for('set_fps', fps=18) }}" class="camescope-button fps-18" id="{% if fps==18 %}actif{% endif %}">18 fps{% if fps==18 %}*{% endif %}</a>
+            <a href="{{ url_for('set_fps', fps=24) }}" class="camescope-button fps-24" id="{% if fps==24 %}actif{% endif %}">24 fps{% if fps==24 %}*{% endif %}</a>
+            <a href="{{ url_for('toggle_vintage') }}" class="camescope-button vintage"  id="{% if vintage %}actif{% endif %}">
+                {% if vintage %}Désactiver Vintage{% else %}Activer Vintage{% endif %}
+            </a>
+        </div>
+
+        <div class="file-section">
+            <a href="{{ url_for('set_size', size='480p') }}" class="camescope-button resolution-480p" id="{% if record_size=='480p' %}actif{% endif %}">480p</a>
+            <a href="{{ url_for('set_size', size='972p') }}" class="camescope-button resolution-972p" id="{% if record_size=='972p' %}actif{% endif %}">972p</a>
+            <a href="{{ url_for('set_size', size='1080p') }}" class="camescope-button resolution-1080p" id="{% if record_size=='1080p' %}actif{% endif %}">1080p</a>
+            <a href="{{ url_for('set_size', size='1944p') }}" class="camescope-button resolution-1944p" id="{% if record_size=='1944p' %}actif{% endif %}">1944p</a>
+
+        </div>
+            
+
+
+        <div class="videos">
+            <h2>Vidéos enregistrées</h2>
+            {% if files %}
+                <ul id="serverFileList">
+                {% for file in files %}
+                    <li><a href="{{ url_for('download', filename=file) }}">{{ file }}</a></li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>Aucune vidéo enregistrée pour le moment.</p>
+            {% endif %}
+        </div>
+
+        <!-- Section pour le renommage dynamique des fichiers -->
+        <div class="file-section">
+            <div id="fileListContainer" class="file-list-container">
+                <!-- Les fichiers seront affichés ici par JS -->
+            </div>
+
+            <!-- Popup pour le lecteur vidéo (masquée par défaut) -->
+            <div id="videoPopup" class="video-popup" style="display:none;">
+                <div class="video-popup-content">
+                    <button id="closePopup" class="video-popup-close">X</button>
+                    <h3>Lecture vidéo</h3>
+                    <video id="videoPlayer" controls style="max-width:100%; height:auto;">
+                        Votre navigateur ne supporte pas la balise vidéo.
+                    </video>
+                    <button id="fullscreenButton" class="fullscreen-button" onclick="toggleFullscreenLandscape()">⤢</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // JS: utilise les liens /download/... générés côté serveur.
+    function ouvrirRetourVidPleinEcran(src) {
+        const popup = document.getElementById("retourVidFullscreenPopup");
+        const img = document.getElementById("retourVidFullscreenImage");
+        img.src = src;
+        popup.style.display = "flex";
+        if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+            popup.classList.add("landscape");
+            alert("Pour une meilleure expérience, tournez votre appareil en mode paysage.");
+        }
+        if (popup.requestFullscreen) {
+            popup.requestFullscreen().catch(err => console.log("Erreur plein écran :", err));
+        }
+    }
+
+    function fermerRetourVidPleinEcran() {
+        const popup = document.getElementById("retourVidFullscreenPopup");
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch(err => console.log("Erreur sortie plein écran :", err));
+        }
+        popup.style.display = "none";
+        popup.classList.remove("landscape");
+    }
+
+    document.addEventListener('fullscreenchange', function() {
+        if (!document.fullscreenElement) {
+            const popup = document.getElementById("retourVidFullscreenPopup");
+            if (popup) { popup.style.display = "none"; popup.classList.remove("landscape"); }
+        }
+    });
+
+    function toggleFullscreenLandscape() {
+        const popupContent = document.querySelector('.video-popup-content');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const fullscreenButton = document.getElementById('fullscreenButton');
+        const isLandscape = popupContent.classList.contains('landscape');
+
+        if (!isLandscape) {
+            popupContent.classList.add('landscape');
+            fullscreenButton.textContent = "⤡";
+            if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+                screen.orientation.lock('landscape').catch(e=>console.log(e));
+            }
+            if (videoPlayer.requestFullscreen) {
+                videoPlayer.requestFullscreen().catch(err => console.log("Erreur plein écran :", err));
+            }
+        } else {
+            popupContent.classList.remove('landscape');
+            fullscreenButton.textContent = "⤢";
+            if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+                screen.orientation.unlock();
+            }
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(err => console.log("Erreur sortie plein écran :", err));
+            }
+        }
+    }
+
+    // Récupère les fichiers listés côté serveur (liens <a href="/download/...">)
+    function extraireFichiersDeLaPage() {
+        const liens = document.querySelectorAll('#serverFileList a[href$=".mp4"]');
+        const fichiers = [];
+        liens.forEach(lien => {
+            const href = lien.getAttribute('href');
+            const nomFichier = href.split('/').pop();
+            fichiers.push({ nom: nomFichier, url: href });
+        });
+        return fichiers;
+    }
+
+    function transformerNom(fichier) {
+        const regex = /rec_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})_(\d+)s_fps(\d+)\.mp4/;
+        const match = fichier.match(regex);
+        if (match) {
+            const [_, annee, mois, jour, heure, minute, seconde, duree, fps] = match;
+            return `${annee}-${mois}-${jour} - ${heure}:${minute}:${seconde} (${duree} secondes, ${fps} FPS).mp4`;
+        }
+        return fichier;
+    }
+
+    function ouvrirVideo(url) {
+        const popup = document.getElementById("videoPopup");
+        const videoPlayer = document.getElementById("videoPlayer");
+        // Utilise l'URL /download/<file>
+        videoPlayer.src = url;
+        popup.style.display = "flex";
+    }
+
+    function fermerVideo() {
+        const popup = document.getElementById("videoPopup");
+        const videoPlayer = document.getElementById("videoPlayer");
+        videoPlayer.pause();
+        videoPlayer.src = "";
+        popup.style.display = "none";
+    }
+
+    let fichierASupprimer = null;
+    function ouvrirConfirmationSuppression(nomFichier) {
+        fichierASupprimer = nomFichier;
+        document.getElementById("confirmationMessage").textContent =
+            `Êtes-vous sûr de vouloir supprimer "${nomFichier}" ?`;
+        document.getElementById("confirmationPopup").style.display = "flex";
+    }
+
+    async function confirmerSuppression() {
+        if (!fichierASupprimer) return fermerConfirmation();
+        try {
+            const resp = await fetch('/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: fichierASupprimer })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert("Erreur suppression: " + (data.error || "unknown"));
+            }
+        } catch (e) {
+            alert("Erreur réseau lors de la suppression.");
+        }
+        fermerConfirmation();
+    }
+
+    function annulerSuppression() {
+        fichierASupprimer = null;
+        fermerConfirmation();
+    }
+
+    function fermerConfirmation() {
+        document.getElementById("confirmationPopup").style.display = "none";
+    }
+
+    function afficherFichiers() {
+        const container = document.getElementById("fileListContainer");
+        const fichiers = extraireFichiersDeLaPage();
+
+        if (fichiers.length === 0) {
+            container.innerHTML = "<p>Aucun fichier .mp4 trouvé sur cette page.</p>";
+            return;
+        }
+
+        fichiers.forEach(fichier => {
+            const nomTransforme = transformerNom(fichier.nom);
+            const fileCard = document.createElement("div");
+            fileCard.className = "file-card";
+            fileCard.innerHTML = `
+                <div style="margin-bottom: 10px;">
+                    <div class="file-retro-name">${nomTransforme}</div>
+                </div>
+                <div class="file-buttons">
+                    <a href="${fichier.url}" download="${nomTransforme}" class="camescope-button download">Télécharger</a>
+                    <button class="camescope-button visualize" onclick="ouvrirVideo('${fichier.url}')">Visualiser</button>
+                    <button class="camescope-button delete" onclick="ouvrirConfirmationSuppression('${fichier.nom}')">X</button>
+                </div>
+            `;
+            container.appendChild(fileCard);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const closeBtn = document.getElementById("closePopup");
+        if (closeBtn) closeBtn.addEventListener("click", fermerVideo);
+        afficherFichiers();
+    });
+</script>
+
+<!-- Popup de confirmation de suppression -->
+<div id="confirmationPopup" class="confirmation-popup" style="display:none;">
+    <div class="confirmation-popup-content">
+        <h3>Confirmer la suppression</h3>
+        <p id="confirmationMessage">Êtes-vous sûr de vouloir supprimer ce fichier ?</p>
+        <div class="confirmation-buttons">
+            <button class="confirmation-button confirm" onclick="confirmerSuppression()">Confirmer</button>
+            <button class="confirmation-button cancel" onclick="annulerSuppression()">Annuler</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

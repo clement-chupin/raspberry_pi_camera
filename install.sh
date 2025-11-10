@@ -2,8 +2,8 @@
 
 sudo apt update -y && sudo apt upgrade -y
 sudo apt install -y python3-picamera2 python3-opencv libcamera-apps python3-rpi.gpio ffmpeg && pip3 install flask numpy
-
-
+sudo apt install python3-opencv -y
+sudo apt update -y && sudo apt upgrade -y
 
 sudo mv raspcam.service /etc/systemd/system/raspcam.service
 sudo systemctl daemon-reload

@@ -12,13 +12,27 @@ from picamera2.outputs import FfmpegOutput
 import RPi.GPIO as GPIO
 import numpy as np
 
+# ...existing code...
+from flask import Flask, render_template, Response, send_from_directory, request, redirect, url_for, jsonify
+# ...existing code...
+
 # -----------------------------
 # PARAMÈTRES CAMÉRA
 # -----------------------------
-preview_size = (640, 480)
+
+
+format_size = {
+    "480p" : (640, 480),
+    "972p" : (1296, 972),
+    "1080p" : (1920, 1080),
+    "1944p" : (2592, 1944),
+}
+
+
 preview_fps = 10
 
-record_size = (1920, 1080)
+preview_size = "480p"
+record_size = "480p" #(1920, 1080)
 record_bitrate = 10000000  # 10 Mbps
 record_framerate = 18  # valeur par défaut
 
@@ -60,7 +74,7 @@ def init_camera_preview():
     global picam2
     picam2.stop()
     config = picam2.create_preview_configuration(
-        main={"size": record_size, "format": "RGB888"},
+        main={"size": format_size[preview_size], "format": "RGB888"},
         # lores={"size": preview_size},
         transform=Transform(hflip=1, vflip=1),  # rotation 180°
         controls={"FrameRate": preview_fps}
@@ -82,7 +96,7 @@ def record_video():
     
     encoder.framerate = record_framerate
     video_config = picam2.create_video_configuration(
-        main={"size": record_size}, #, "FrameRate" : record_framerate
+        main={"size": format_size[record_size]}, #, "FrameRate" : record_framerate
         transform=Transform(hflip=1, vflip=1),
         controls={"FrameRate": record_framerate}
     )
@@ -100,6 +114,12 @@ def record_video():
     duration = int(time.time() - video_start_time)
     new_name = output_filename.replace(".h264", f"_{duration}s_fps{record_framerate}.h264")
     os.rename(output_filename, new_name)
+
+    # Convert h264 to mp4
+    mp4_name = new_name.replace('.h264', '.mp4')
+    os.system(f'ffmpeg -i {new_name} -c:v copy {mp4_name}')
+    os.remove(new_name)
+
     print(f"Recording stopped and saved: {new_name}")
 
     init_camera_preview()
@@ -163,10 +183,10 @@ def apply_vintage(frame):
 # -----------------------------
 init_camera_preview()
 
-@app.route('/')
-def index():
-    files = sorted([f for f in os.listdir(VIDEO_DIR) ], reverse=True) #if f.endswith(".h264")
-    return render_template('index.html', files=files, fps=record_framerate, vintage=vintage_mode)
+# @app.route('/')
+# def index():
+#     files = sorted([f for f in os.listdir(VIDEO_DIR) ], reverse=True) #if f.endswith(".h264")
+#     return render_template('index.html', files=files, fps=record_framerate, vintage=vintage_mode)
 
 def gen_frames():
     while True:
@@ -193,11 +213,49 @@ def set_fps(fps):
         print(f"FPS set to {fps}")
     return redirect(url_for('index'))
 
+@app.route('/set_size/<string:size>')
+def set_size(size):
+    global record_size
+    record_size = size
+    print(f"record_size set to {size}")
+    return redirect(url_for('index'))
+
+
 @app.route('/toggle_vintage')
 def toggle_vintage():
     global vintage_mode
     vintage_mode = not vintage_mode
     return redirect(url_for('index'))
+
+
+@app.route('/')
+def index():
+    files = sorted([f for f in os.listdir(VIDEO_DIR) if f.endswith(".mp4")], reverse=True)
+    print("files : ",VIDEO_DIR)
+    print("files : ",files)
+    return render_template('index.html', files=files, fps=record_framerate, record_size=record_size, vintage=vintage_mode)
+
+# ...existing code...
+
+# @app.route('/download/<path:filename>')
+# def download(filename):
+#     return send_from_directory(VIDEO_DIR, filename, as_attachment=True)
+
+@app.route('/delete', methods=['POST'])
+def delete_file():
+    data = request.get_json(silent=True)
+    if not data or 'filename' not in data:
+        return jsonify(success=False, error='missing filename'), 400
+    filename = os.path.basename(data['filename'])
+    file_path = os.path.join(VIDEO_DIR, filename)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        try:
+            os.remove(file_path)
+            return jsonify(success=True)
+        except Exception as e:
+            return jsonify(success=False, error=str(e)), 500
+    else:
+        return jsonify(success=False, error='not found'), 404
 
 # -----------------------------
 # MAIN

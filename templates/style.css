@@ -1,0 +1,636 @@
+:root {
+    --couleur-fond: #f5e7d3;
+    --couleur-texte: #5a3d2b;
+    --couleur-bordure: #8b4513;
+    --couleur-bouton: #d2b48c;
+    --couleur-bouton-hover: #8b4513;
+}
+
+body {
+    background-color: var(--couleur-fond);
+    color: var(--couleur-texte);
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    min-height: 100vh;
+    background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0.5px, transparent 0.5px),
+    radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.1) 0.5px, transparent 0.5px),
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.05) 0.5px, transparent 0.5px);
+    background-size: 100px 100px, 150px 150px, 75px 75px;
+}
+
+/* Effet de grain (tous écrans) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.03);
+    pointer-events: none;
+    z-index: 100;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none"/><g fill="%23000" opacity="0.04"><circle cx="20" cy="20" r="0.7"/><circle cx="80" cy="10" r="0.5"/><circle cx="60" cy="90" r="0.4"/><circle cx="10" cy="80" r="0.6"/><circle cx="90" cy="60" r="0.3"/></g></svg>');
+}
+
+/* Conteneur principal (responsive) */
+.container {
+     display: flex;
+      flex-direction: column;
+    width: 90%;
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: rgba(245, 231, 211, 0.95);
+    border: 3px solid var(--couleur-bordure);
+    box-shadow: 0 0 15px rgba(139, 69, 19, 0.3);
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Effet de bordure "vieillie" */
+.container::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+/* Titres (responsive) */
+h1, h2, h3 {
+    color: var(--couleur-bordure);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px dashed var(--couleur-bordure);
+    margin-top: 0.8em;
+    text-align:center;
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.6rem;
+}
+
+h3 {
+    font-size: 1.3rem;
+}
+
+.retourvid{
+        width: 90%;
+    height:auto;
+    display: block;
+    margin: 15px auto;
+    border: 5px solid var(--couleur-bordure);
+    border-radius: 3px;
+
+}
+
+.videos{
+
+    display:none;
+}
+
+
+/* Effet de scanlines (subtil) */
+.container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 50%, rgba(0, 0, 0, 0.03) 50%);
+    background-size: 100% 3px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+
+
+/* Liens */
+
+a:hover {
+    color: red;
+}
+
+/* Style de base pour les boutons caméscope (tous écrans) */
+.camescope-button {
+
+    padding: 16px 20px; /* Remplissage plus généreux */
+    margin: 9px 9px; /* Espacement vertical */
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    color: #f5f5f5;
+    text-align: center;
+    text-decoration: none;
+    background-color: #3a3a3a;
+    border: 3px solid #5a5a5a;
+    border-radius: 8px; /* Coins légèrement arrondis */
+    box-shadow:
+    0 6px 0 #1a1a1a,
+    inset 0 3px 5px rgba(255, 255, 255, 0.2),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.3);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    font-size: 1.2rem; /* Texte plu  display: block; s gros */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+
+}
+
+/* Texture "plastique" */
+.camescope-button::before {
+    content: "";
+    position: absolute;
+   margin: auto;
+    width: 100%;
+    height: 100%;
+    background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+    linear-gradient(45deg, rgba(0, 0, 0, 0.1) 0%, transparent 50%);
+    opacity: 0.3;
+}
+
+/* Effet "enfoncé" au clic */
+#actif {
+transform: translateY(3px);
+box-shadow:
+0 1px 0 #1a1a1a,
+inset 0 1px 3px rgba(255, 255, 255, 0.1),
+inset 0 -1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Effet "lumière" sur le bord supérieur */
+.camescope-button::after {
+    content: "";
+    position: absolute;
+    top: 8%;
+    left: 15%;
+    width: 70%;
+    height: 6%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.4), transparent);
+    border-radius: 50%;
+    filter: blur(1.5px);
+}
+
+/* Couleurs spécifiques */
+.camescope-button.fps-18 {
+    background-color: #7c5c7a;
+    border-color: #7c5c7a;
+}
+.camescope-button.fps-18:hover {
+    background-color: #8c5c7a;
+    border-color: #8b4513;
+}
+.camescope-button.fps-24 {
+    background-color: #2a5c6a;
+    border-color: #3a7c8a;
+}
+
+.camescope-button.resolution-480p {
+    background-color: #3dce38;
+    border-color: #d66422;
+}
+.camescope-button.resolution-972p {
+    background-color: #6d1919;
+    border-color: #127635;
+}
+.camescope-button.resolution-1080p {
+    background-color: #f1560e;
+    border-color: #4e159f;
+}
+.camescope-button.resolution-1944p {
+    background-color: #097f29;
+    border-color: #6e783a;
+}
+.camescope-button.vintage {
+    background-color: #7b4513;
+    border-color: #a0522d;
+}
+
+
+
+
+/* Animation pour le bouton actif */
+.camescope-button.active {
+    animation: flicker 1.5s infinite alternate;
+}
+
+
+
+/* Media Queries pour smartphones */
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+        padding: 10px;
+    }
+
+    .container {
+        width: 95%;
+        padding: 15px;
+        margin: 10px auto;
+    }
+
+
+    .retourvid{
+        width:90%;
+        height:auto;
+
+
+    }
+    h1 {
+        font-size: 5 rem;
+    }
+
+    h2 {
+        font-size: 3rem;
+    }
+
+    h3 {
+        font-size: 1.4rem;
+    }
+
+
+    .camescope-button {
+        width: 80%;
+        padding: 10px 25px;
+        margin: 7px auto;
+        font-size: 2rem;
+    }
+
+     .camescope-button.download {
+         font-size: 1.8rem;
+
+    }
+    .file-section {
+     flex-direction: column;
+
+    }
+}
+
+
+
+/* Conteneur principal de la section fichiers */
+.file-section {
+    display: flex;
+    background-color: #f5e7d3;
+    color: #5a3d2b;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 750px;
+    border: 3px solid #8b4513;
+    border-radius: 5px;
+    justify-content: center;
+}
+
+.file-section h2 {
+    text-align: center;
+    border-bottom: 2px dashed #8b4513;
+    padding-bottom: 10px;
+}
+
+/* Liste des fichiers */
+.file-list-container {
+    margin-top: 15px;
+}
+
+/* Carte d'un fichier */
+.file-card {
+    background-color: rgba(210, 231, 211, 0.7);
+    border: 1px solid #8b4513;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 10px 0;
+    display: flex;
+
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    max-width: 100%;
+}
+
+.file-original-name {
+    font-size: 0.9em;
+    color: #666;
+    word-break: break-all;
+    margin-bottom: 5px;
+}
+
+.file-retro-name {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #8b4513;
+}
+
+/* Boutons */
+.file-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+
+.camescope-button.download {
+    background-color: #8b4513;
+    border-color: #8b4513;
+    width:200px;
+}
+
+.camescope-button.visualize {
+    background-color: #5a3d2b;
+    border-color: #5a3d2b;
+     width:200px;
+}
+.camescope-button.delete {
+    background-color: #D9350F;
+    border-color: #D9350F;
+    width:70px;
+}
+
+/* Popup vidéo */
+.video-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.video-popup-content {
+    background-color: #f5e7d3;
+    border: 3px solid #8b4513;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 90%;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.video-popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: black;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align:center;
+}
+
+.video-popup h3 {
+    text-align: center;
+    margin-top: 0;
+    color: #8b4513;
+}
+
+.video-popup video {
+    width: 100%;
+    max-height: 70vh;
+    background-color: black;
+    border-radius: 5px;
+    display: block;
+    margin: 0 auto;
+}
+
+
+
+
+
+/* Popup de confirmation de suppression */
+.confirmation-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 1001;
+    justify-content: center;
+    align-items: center;
+}
+
+.confirmation-popup-content {
+    background-color: #f5e7d3;
+    border: 3px solid #8b4513;
+    border-radius: 10px;
+    padding: 25px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.confirmation-popup h3 {
+    color: #8b4513;
+    margin-top: 0;
+}
+
+.confirmation-popup p {
+    color: #5a3d2b;
+    margin-bottom: 20px;
+}
+
+.confirmation-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.confirmation-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+.confirmation-button.confirm {
+    background-color: #d2691e; /* Rouge-brun rétro */
+    color: white;
+}
+
+.confirmation-button.confirm:hover {
+    background-color: #b25918;
+}
+
+.confirmation-button.cancel {
+    background-color: #8b4513;
+    color: white;
+}
+
+.confirmation-button.cancel:hover {
+    background-color: #6b3d1b;
+}
+/* Bouton plein écran dans la popup vidéo */
+.fullscreen-button {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background: #8b4513;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    font-size: 1.2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.fullscreen-button:hover {
+    background: #6b3d1b;
+}
+
+/* Style pour le mode paysage sur mobile */
+@media (max-width: 768px) {
+    .video-popup-content.landscape {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        border-radius: 0;
+        padding: 0;
+    }
+
+    .video-popup-content.landscape video {
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        object-fit: contain;
+    }
+
+    .video-popup-content.landscape h3,
+    .video-popup-content.landscape .video-popup-close {
+        display: none;
+    }
+}
+
+/* Classe pour masquer les éléments en plein écran */
+.hide-in-fullscreen {
+    display: none !important;
+}
+/* Conteneur pour l'image "retourvid" */
+.retourvid-container {
+    position: relative;
+    display: inline-block;
+    margin: 10px auto;
+    text-align: center;
+}
+
+/* Bouton plein écran pour l'image */
+.retourvid-fullscreen-button {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(139, 69, 19, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.retourvid-fullscreen-button:hover {
+    background: rgba(107, 63, 27, 0.9);
+}
+
+/* Popup pour l'image en plein écran */
+.retourvid-fullscreen-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.retourvid-fullscreen-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    text-align: center;
+}
+
+.retourvid-fullscreen-content img {
+    max-width: 100%;
+    max-height: 100vh;
+    object-fit: contain;
+    transform: rotate(0deg); /* Réinitialisation pour éviter les rotations indésirables */
+}
+
+.retourvid-fullscreen-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: rgba(139, 69, 19, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    font-size: 1.2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2001;
+}
+
+/* Mode paysage sur mobile */
+@media (max-width: 768px) {
+    .retourvid-fullscreen-popup.landscape {
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .retourvid-fullscreen-popup.landscape .retourvid-fullscreen-content {
+        width: 100%;
+        height: 100%;
+        transform: rotate(90deg);
+    }
+
+    .retourvid-fullscreen-popup.landscape .retourvid-fullscreen-content img {
+        width: 100vh;
+        height: 100vw;
+        max-width: none;
+        max-height: none;
+        transform: rotate(90deg);
+    }
+}
